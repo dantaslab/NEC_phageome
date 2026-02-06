@@ -1,8 +1,8 @@
 #!/bin/bash
 #===============================================================================
-# File Name    : s03_CheckV.sh
+# File Name    : s04_CheckV.sh
 # Description  : Assessing the quality of metagenome-assembled viral genomes
-# Usage        : sbatch s03_CheckV.sh
+# Usage        : sbatch s04_CheckV.sh
 # Author       : Kailun Zhang, kailun@wustl.edu
 # Version      : 1.0
 # Modified     : Nov 02 2021
