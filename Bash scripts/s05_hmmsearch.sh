@@ -1,8 +1,8 @@
 #!/bin/bash
 #===============================================================================
-# File Name    : s04_hmmsearch.sh
+# File Name    : s05_hmmsearch.sh
 # Description  : This script will run amrfinder in parallel
-# Usage        : sbatch s04_hmmsearch.sh
+# Usage        : sbatch s05_hmmsearch.sh
 # Author       : Kailun Zhang, kailun@wustl.edu
 # Version      : 1.2
 # Created On   : Jul 22 2021 by Luke Diorio-Toth, ldiorio-toth@wustl.edu
