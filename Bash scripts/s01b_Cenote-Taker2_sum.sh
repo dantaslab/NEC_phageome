@@ -1,9 +1,9 @@
 #!/bin/bash
 #===============================================================================
 #
-# File Name    : s01_Cenote-Taker2_sum.sh
+# File Name    : s01b_Cenote-Taker2_sum.sh
 # Description  : Summarize busco data into a single file
-# Usage        : s01_Cenote-Taker2_sum.sh
+# Usage        : s01b_Cenote-Taker2_sum.sh
 # Author       : Kailun Zhang, kailun@wustl.edu
 # Version      : 1.0
 # Created On   : Nov 16 2021
