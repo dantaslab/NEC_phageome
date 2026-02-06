@@ -1,0 +1,60 @@
+awk 'BEGIN{while((getline<"241121_OlmSRR_phage_list_final.txt")>0)l[">"$1]=1}/^>/{f=l[$1]}f' 241001_Olm_SRR_CT3_pass4.fasta > 241121_Olm_SRR_CT3_final.fasta
+awk '/^>/ { file=substr($1,2) ".fasta" } { print > file }' 241121_Olm_SRR_CT3_final.fasta
+
+# CRISPR - DONE
+srun -c 24 --time=36:00:00 --mem=120G --pty bash -i
+cd /scratch/gdlab/kailun/Phageome/NEC_Olm/Host/CRISPR
+
+eval $( spack load --sh /u7ssbm4 ) # load blast-plus@2.12.0
+blastn -db /lts/gdlab/users/current/kailun/Phageome/CRISPR/Bacteria_Spacer_db -query /scratch/gdlab/kailun/Phageome/NEC_Olm/241121_Olm_SRR_CT3_final.fasta -outfmt 6 -out blastn_OlmSRR_final_spacer.out
+
+
+# IMGVR
+srun -c 24 --time=36:00:00 --mem=64G --pty bash -i
+eval $( spack load --sh /u7ssbm4 ) # load blast-plus@2.12.0
+blastn -query /scratch/gdlab/kailun/Phageome/NEC_Olm/241121_Olm_SRR_CT3_final.fasta  -db /lts/gdlab/users/current/kailun/Phageome/IMG_VR/IMG_VR_2020-10-12_5.1/IMGVR_all_201012_db -outfmt '6 std qlen slen' -max_target_seqs 100000 -perc_identity 95 -out blastn_OlmSRR_final_IMGVR_95.tsv -num_threads 20
+
+grep -f imgvr_list.txt IMGVR_all_Sequence_information
+
+# tRNA
+srun -c 24 --time=36:00:00 --mem=120G --pty bash -i
+eval $( spack load --sh trnascan-se )
+
+tRNAscan-SE -G /scratch/gdlab/kailun/Phageome/NEC_Olm/241121_Olm_SRR_CT3_final.fasta -o OlmSRR_final_tRNAscan.txt
+tRNAscan-SE -G /scratch/gdlab/kailun/Phageome/NEC_Olm/241121_Olm_SRR_CT3_final.fasta -f OlmSRR_final_tRNAscan.fasta
+grep "trna\|Seq" OlmSRR_final_tRNAscan.fasta > OlmSRR_final_tRNAscan_1.fasta
+sed -e 's/^/>/' OlmSRR_final_tRNAscan_1.fasta > OlmSRR_final_tRNAscan_2.fasta
+sed -e 's/>Seq: //' OlmSRR_final_tRNAscan_2.fasta > OlmSRR_final_tRNAscan_3.fasta
+sed 's/\s.*$//' OlmSRR_final_tRNAscan_3.fasta > OlmSRR_final_tRNAscan_4.fasta
+eval $( spack load --sh /u7ssbm4 ) # load blast-plus@2.12.0
+blastn -query OlmSRR_final_tRNAscan_4.fasta -db /lts/gdlab/users/current/kailun/Phageome/NEC/2022-06-20/tRNAscan/tRNA_database/bacterial_archaeal_db -outfmt '6 std qlen slen' -max_target_seqs 10000 -out OlmSRR_final_tRNA_blast_BacArc.tsv -num_threads 24
+
+python3 anicalc.py -i OlmSRR_final_tRNA_blast_BacArc.tsv -o OlmSRR_final_tRNA_ani_BacArc.tsv
+
+
+# WIsH
+srun -c 24 --time=36:00:00 --mem=64G --pty bash -i
+git clone https://github.com/soedinglab/WIsH.git
+cd WIsH
+cmake .
+make
+ref/gdlab/software/WIsH/WIsH -h #test
+
+cd /scratch/gdlab/kailun/Phageome/NEC_Olm/Host/WIsH
+mkdir predict_out
+/ref/gdlab/software/WIsH/WIsH -c predict -g /scratch/gdlab/kailun/Phageome/NEC_Olm/phage_contigs -m /lts/gdlab/users/current/kailun/Phageome/NEC/2022-06-20/WIsH/model -r predict_out -t 16 -b 1
+
+eval $( spack load --sh /7anzvct ) #load r
+Rscript computeNullParameters.R # in /scratch/gdlab/kailun/Phageome/NEC_Olm/Host/WIsH/predict_out
+cd .. #copy the nullParameters.tsv here
+mkdir predict_out_null
+mkdir predict_out_null_b5
+/ref/gdlab/software/WIsH/WIsH -c predict -g /scratch/gdlab/kailun/Phageome/NEC_Olm/phage_contigs -m /lts/gdlab/users/current/kailun/Phageome/NEC/2022-06-20/WIsH/model -r predict_out_null -t 24 -b 1 -n nullParameters.tsv
+/ref/gdlab/software/WIsH/WIsH -c predict -g /scratch/gdlab/kailun/Phageome/NEC_Olm/phage_contigs -m /lts/gdlab/users/current/kailun/Phageome/NEC/2022-06-20/WIsH/model -r predict_out_null_b5 -t 24 -b 5 -n nullParameters.tsv
+
+# Prophage MGYG
+blastn -query /scratch/gdlab/kailun/Phageome/NEC_Olm/241121_Olm_SRR_CT3_final.fasta -db /lts/gdlab/users/current/kailun/Phageome/NEC/2022-06-20/BlastN/MGYG_database/MGYG_rep_species_db -outfmt '6 std qlen slen' -max_target_seqs 500000 -evalue 0.001 -out OlmSRR_final_MGYG_rep_species_e-3_2.tsv -num_threads 24
+
+awk '$3>=70 && $4>=2500' OlmSRR_final_MGYG_rep_species_e-3_2.tsv > OlmSRR_final_MGYG_rep_species_e-3_2_idp70_length2500.tsv
+
+
