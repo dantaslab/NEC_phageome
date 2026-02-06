@@ -1,8 +1,8 @@
 #!/bin/bash
 #===============================================================================
-# File Name    : s01_CenoteTaker2.sh
+# File Name    : s01a_CenoteTaker2.sh
 # Description  : Discover and annoate virus sequences/genomes
-# Usage        : sbatch s01_CenoteTaker2.sh
+# Usage        : sbatch s01a_CenoteTaker2.sh
 # Author       : Kailun Zhang, kailun@wustl.edu
 # Version      : 2.0
 # Modified     : Aug 17 2021 by Luke Diorio-Toth, ldiorio-toth@wustl.edu
