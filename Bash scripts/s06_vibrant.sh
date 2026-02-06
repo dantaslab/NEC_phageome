@@ -1,8 +1,8 @@
 #!/bin/bash
 #===============================================================================
-# File Name    : s05_vibrant.sh
+# File Name    : s06_vibrant.sh
 # Description  : Virus Identification By iteRative ANnoTation
-# Usage        : sbatch s05_vibrant.sh
+# Usage        : sbatch s06_vibrant.sh
 # Author       : Kailun Zhang, kailun@wustl.edu
 # Version      : 1.0
 # Created On   : Nov 20 2021
