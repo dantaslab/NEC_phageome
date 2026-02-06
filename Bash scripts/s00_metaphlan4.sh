@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #===============================================================================
-# File Name    : metaphlan.sh
+# File Name    : s00_metaphlan.sh
 # Description  : Profiles taxonomic composition of a read set using MetaPhlAn
-# Usage        : sbatch metaphlan.sh
+# Usage        : sbatch s00_metaphlan.sh
 # Author       : Kailun Zhang
 # Version      : 1.2
 # Created On   : 2021-01-06 by Luke Diorio-Toth
