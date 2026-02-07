@@ -1,0 +1,141 @@
+```{r}
+library(readr)
+library(pheatmap)
+library(RColorBrewer)
+library(viridis)
+library(tidyr)
+library(dplyr)
+library(phangorn)
+library(ggplot2)
+library(ggtree)
+library(ggnewscale)
+library(Maaslin2)
+library(readxl)
+library("compositions")
+library("doParallel")
+library(readxl)
+library(sjmisc)
+setwd('~/Google Drive/WashU/Phageome/NEC/Manuscript/Figures_drop/Figure 3/Fig3A_extension/Fig3A_all/MaAsLin2_Bac_Resistome_RA')
+```
+Getting data
+```{r}
+## RA of bacterial iRep at genus level
+X_all <- read.csv('241104_NEC_ShortBRED_byclass.csv',head = TRUE) 
+X_all = filter(X_all, !grepl("204-01|2156-01|415-01|2132-01|2234-01|234-01|
+                               421-01|2218-01|2238-02|49-01|257-01|2022-01|
+                               2077-01|2190-01|2228-01", Patient))
+X_all = filter(X_all, Patient!="421-01" & Patient!="2077-01")
+
+X_late = filter(X_all,Days_before_NEC_onset<=9 & Days_before_NEC_onset>=8 & NEC_onset2=="Late")
+row.names(X_late) = X_late$SampleID
+X_data <- subset(X_late, select = -c(SampleID, NEC_onset2, NEC_status, DOL, Days_before_NEC_onset, Patient))
+X_data <- X_data[rowSums(X_data)>0, ]
+X_data <- X_data/rowSums(X_data) * 100
+X_data <- round(X_data * 10000000)
+
+metadata_sample1 = read_excel("240404_sample_ALL.xlsx")
+metadata_sample2 = read_excel("240405_sample_medications.xlsx")
+metadata_sample  = merge(metadata_sample1, metadata_sample2, by="DNA_Sample_ID")
+metadata_subject = read_excel("240404_subject_ALL.xlsx")
+metadata         = merge(metadata_sample, metadata_subject, by="Patient")
+row.names(metadata) = metadata$DNA_Sample_ID
+metadata = filter(metadata, !grepl("204-01|2156-01|415-01|2132-01|2234-01|234-01|
+                               421-01|2218-01|2238-02|49-01|257-01|2022-01|
+                               2077-01|2190-01|2228-01", Patient))
+metadata = filter(metadata, Patient!="421-01" & Patient!="2077-01")
+factor.vars <- c("NEC_status", "Patient", "DNA_Sample_ID",
+                 "Recent_penicillin", "Recent_aminoglycoside", "Recent_lincosamide", "Recent_glycopeptide",
+                 "Recent_carbapenem", "Recent_macrolide", "Recent_1st_gen_cephalosporin", "Recent_2nd_gen_cephalosporin",
+                 "Recent_3rd_gen_cephalosporin", "Recent_4th_gen_cephalosporin",
+                 "Other_ANTIM_recent", "feeding_current", "milk_current",
+                 "Acetaminophen_recent", "Caffeine_recent", "Calcium_gluconate_recent", "Chlorathiazide_recent",
+                 "Cholecalciferol_recent", "Dexamethasone_recent", "Dopamine_recent", "Dobutamine_recent",
+                 "Famotidine_recent", "Fentanyl_recent", "Hydrocortisone_recent", "Indomethacin_recent", "Insulin_recent",
+                 "Immunoglobulin_recent", "Iron_recent", "Lasix_recent", "Midazolam_recent", "Morphine_recent",
+                 "Multi_vitamin_with_iron_recent", "Multi_vitamin_no_iron_recent", "Pancuronium_or_Vecurionium_recent",
+                 "Phenobarbitol_recent", "Potassium_chloride_recent", "Sodium_chloride_recent", "Sodium_bicarbonate_recent",
+                 "Surfactant_recent", "Vitamin_A_recent", "Sex", "route", "multiple", "Site")
+
+metadata[, factor.vars] <- lapply(metadata[, factor.vars], factor)
+
+# metadata = read.csv('230701_maaslin_metadata_phage.csv',head = TRUE) 
+metadata_late = filter(metadata, Days_before_NEC_onset>=0)
+metadata_late = select(metadata_late, where(function(x) all(!is.na(x))))
+
+X.meta = merge(X_data, metadata_late, by = "row.names" )
+rownames(X.meta) = X.meta$Row.names
+X.meta$Row.names = NULL
+
+X_data = X.meta[,c(1:dim(X_data)[2])]
+metadata_late =  X.meta[,c((dim(X_data)[2]+1):dim(X.meta)[2])]
+A  = select(metadata_late, where(function(x) length(levels(factor(x)))==1))
+colnames(A)
+```
+Fix metadata file -  set the first colume as row names
+
+```{r}
+library(data.table)
+taxa_pa = transpose(X_data)  # transpose(X_data) #transpose(data.frame(clr(X))) # transpose(data.frame(scale(clr(X))))
+colnames(taxa_pa) = row.names(X_data)
+rownames(taxa_pa) = colnames(X_data)
+rownames(metadata_late) = metadata_late$DNA_Sample_ID
+metadata_key = subset(metadata_late, select = -c(DNA_Sample_ID))
+row.names(metadata_key)[!row.names(metadata_key)==colnames(taxa_pa)]
+```
+# Parallelism
+```{r parallel}
+require(doParallel)
+cl = makeCluster(6)
+registerDoParallel(cl)
+```
+
+```{r}
+# Use trace(Maaslin2, edit = T) to change the source code
+# Use trace(Maaslin2, edit = T) to change the source code
+Fixed_effects = c('Recent_penicillin', 'Recent_aminoglycoside', 'Recent_lincosamide', 'Recent_glycopeptide', 'Recent_carbapenem',
+                  'Recent_macrolide', 'Recent_1st_gen_cephalosporin', 'Recent_2nd_gen_cephalosporin', 'Recent_3rd_gen_cephalosporin',
+                  'Recent_4th_gen_cephalosporin', 'Other_ANTIM_recent', 'Abx_cumulative', 'ANTIM_cumulative', 
+                  'feeding_current', 'milk_current', 'milk_cumulative', 'formula_cumulative', 
+                  'NEC_status',  'DOL', 
+                  'Acetaminophen_recent', 'Caffeine_recent', 'Calcium_gluconate_recent', 'Chlorathiazide_recent', 
+                  'Cholecalciferol_recent', 'Dexamethasone_recent', 'Dopamine_recent', 'Dobutamine_recent', 'Famotidine_recent',
+                  'Fentanyl_recent', 'Hydrocortisone_recent', 'Indomethacin_recent','Insulin_recent', 'Immunoglobulin_recent', 'Iron_recent',
+                  'Lasix_recent', 'Midazolam_recent', 'Morphine_recent', 'Multi_vitamin_with_iron_recent', 'Multi_vitamin_no_iron_recent',
+                  'Pancuronium_or_Vecurionium_recent', 'Phenobarbitol_recent', 'Potassium_chloride_recent', 'Sodium_chloride_recent',
+                  'Sodium_bicarbonate_recent', 'Surfactant_recent', 'Vitamin_A_recent', 
+                  'GA_birth', 'Birthweight', 'Sex', 'route', 'multiple')
+# Fixed_effects = c("DOL", "NEC_status", "milk_cumulative", "formula_cumulative",
+#                   "Recent_penicillin", "Recent_amingoglycoside", "Recent_glycopeptide",
+#                   "Recent_carbapenem", "Recent_macrolide", "Recent_1st_gen_cephalosporin",
+#                   "Recent_3rd_gen_cephalosporin", "Recent_4th_gen_cephalosporin",
+#                   "mat_preeclampsia", "Acetaminophen_recent", "Chlorathiazide_recent",
+#                   "Cholecalciferol_recent", "Dopamine_recent", "Famotidine_recent",
+#                   "Fentanyl_recent", "Hydrocortisone_recent","Indomethacin_recent",
+#                   "Iron_recent", "Lasix_recent", "Midazolam_recent", "Multi_vitamin_with_iron_recent",
+#                   "Multi_vitamin_no_iron_recent", "Phenobarbitol_recent", "Sodium_chloride_recent",
+#                   "Sodium_bicarbonate_recent", "Surfactant_recent")
+
+m = str_contains(c(colnames(A)),Fixed_effects)
+
+df_input_data = taxa_pa
+df_input_metadata = metadata_key
+fit_data = Maaslin2(
+    input_data = df_input_data, 
+    input_metadata = df_input_metadata,
+    min_prevalence = 0.005,
+    min_abundance = 0,
+    plot_scatter = FALSE,
+    cores = 6,
+    analysis_method = "LM", #NEGBIN or LM
+    normalization = "NONE",
+    transform = "LOG",
+    output = "250416_Bac_Resisome_class_drop_LM_LOG_0_late_DBO8_9", 
+    fixed_effects = Fixed_effects[!m],
+    random_effects = c("Site"),
+    reference = c("NEC_status,Control"))
+```
+
+```{r}
+stopCluster(cl)
+registerDoSEQ()
+```
