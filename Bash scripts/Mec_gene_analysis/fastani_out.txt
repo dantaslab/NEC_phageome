@@ -1,0 +1,12 @@
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_8.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_8.fasta	100	14	14
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/S129C40_011191_vs01_27.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/S129C40_011191_vs01_27.fasta	100	19	19
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_9.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_9.fasta	100	16	16
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/S51C2050_014427_vs01_4.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/S51C2050_014427_vs01_4.fasta	100	7	7
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_10.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_10.fasta	100	15	15
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_2.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_2.fasta	100	14	14
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_6.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_6.fasta	99.9876	15	15
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_3.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_3.fasta	100	15	15
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_7.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_7.fasta	100	14	14
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_1.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_1.fasta	100	15	15
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_4.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_4.fasta	100	15	15
+/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_5.fasta	/scratch/gdlab/kailun/Phageome/NEC/mec/mec_genes/Consensus_5.fasta	100	14	14
