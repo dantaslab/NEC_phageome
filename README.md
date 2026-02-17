@@ -1,1 +1,1 @@
-![250624-Dantas-NEC_schametic_v3](https://github.com/user-attachments/assets/715dbe3c-0e6e-467c-bef3-9690dd9ddfe3)
+<img width="1666" height="1666" alt="NECPhageome_graphical_abstract" src="https://github.com/user-attachments/assets/ec75a402-4bb0-408d-b033-9b65404fedb1" />
